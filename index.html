@@ -1,2 +1,918 @@
-# BillYourBest
-Rate Calculator — income goal, expenses, billable hours, profit buffer → minimum hourly rate with daily and project rate breakdown Tax Set-Aside — Canada, US, UK, Australia, other → percentage t
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bill Your Best — Free Tools for People Who Work for Themselves</title>
+<meta name="description" content="Free tools for freelancers, creatives, trades, and self-employed people. Calculate your rate, set aside taxes, and generate invoices — no signup needed.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap');
+ 
+:root {
+  --ink: #1c1c1c;
+  --paper: #f5f0e8;
+  --cream: #fffdf7;
+  --gold: #c8962a;
+  --gold-light: #f0d890;
+  --rule: #d4c9b0;
+  --muted: #7a7060;
+  --success: #2d6a4f;
+}
+ 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 0;
+}
+ 
+/* Header */
+.masthead {
+  background: var(--ink);
+  color: var(--cream);
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+  border-bottom: 4px solid var(--gold);
+}
+ 
+.masthead-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+ 
+.masthead h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+ 
+.masthead-sub {
+  font-size: 14px;
+  color: #aaa;
+  font-style: italic;
+}
+ 
+/* Nav tabs */
+.tab-nav {
+  display: flex;
+  background: var(--ink);
+  border-bottom: 2px solid var(--gold);
+  overflow-x: auto;
+}
+ 
+.tab-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+ 
+.tab-btn:hover { color: var(--gold-light); }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+ 
+/* Panels */
+.panel { display: none; padding: 2rem; max-width: 680px; margin: 0 auto; }
+.panel.active { display: block; }
+ 
+.panel-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+ 
+.panel-desc {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 2rem;
+  font-style: italic;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+ 
+/* Form elements */
+.field-group {
+  margin-bottom: 1.25rem;
+}
+ 
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+ 
+label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+ 
+input, select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-size: 15px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--ink);
+  transition: border-color 0.2s;
+}
+ 
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(200,150,42,0.1);
+}
+ 
+.prefix-input {
+  position: relative;
+}
+ 
+.prefix-input span {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+ 
+.prefix-input input { padding-left: 28px; }
+ 
+/* Calculate button */
+.calc-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin: 1.5rem 0;
+  transition: all 0.2s;
+}
+ 
+.calc-btn:hover {
+  background: var(--gold);
+  color: var(--ink);
+}
+ 
+/* Results */
+.result-box {
+  display: none;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 6px;
+  padding: 1.75rem;
+  margin-top: 1rem;
+}
+ 
+.result-box.visible { display: block; animation: slideIn 0.3s ease; }
+ 
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+ 
+.result-main {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+ 
+.result-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+ 
+.result-breakdown {
+  border-top: 1px solid #333;
+  padding-top: 1rem;
+  display: grid;
+  gap: 8px;
+}
+ 
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+ 
+.result-row span:first-child { color: #aaa; }
+.result-row span:last-child { font-family: 'IBM Plex Mono', monospace; color: var(--cream); }
+ 
+/* Invoice specific */
+.invoice-preview {
+  display: none;
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 2rem;
+  margin-top: 1.5rem;
+  font-size: 13px;
+}
+ 
+.invoice-preview.visible { display: block; }
+ 
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--ink);
+}
+ 
+.invoice-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--ink);
+}
+ 
+.invoice-number {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+ 
+.invoice-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+ 
+.invoice-party-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+ 
+.invoice-party-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+ 
+.invoice-items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 13px;
+}
+ 
+.invoice-items th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+}
+ 
+.invoice-items th:last-child,
+.invoice-items td:last-child { text-align: right; }
+ 
+.invoice-items td {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0ebe0;
+}
+ 
+.invoice-totals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 13px;
+}
+ 
+.invoice-total-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: flex-end;
+}
+ 
+.invoice-total-row.grand {
+  font-weight: 600;
+  font-size: 16px;
+  padding-top: 8px;
+  border-top: 2px solid var(--ink);
+  margin-top: 4px;
+}
+ 
+.invoice-note {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+ 
+.print-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: opacity 0.2s;
+}
+ 
+.print-btn:hover { opacity: 0.85; }
+ 
+/* Line items */
+.line-item-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px 36px;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: end;
+}
+ 
+.remove-btn {
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.2s;
+}
+ 
+.remove-btn:hover { border-color: #c0392b; color: #c0392b; }
+ 
+.add-line-btn {
+  background: transparent;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  padding: 10px;
+  width: 100%;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+ 
+.add-line-btn:hover { border-color: var(--gold); color: var(--gold); }
+ 
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--rule);
+  margin-top: 2rem;
+}
+ 
+.site-footer a { color: var(--gold); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+ 
+.divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 1.5rem 0;
+}
+ 
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+ 
+@media (max-width: 480px) {
+  .field-row { grid-template-columns: 1fr; }
+  .line-item-row { grid-template-columns: 1fr 70px 70px 36px; }
+  .invoice-parties { grid-template-columns: 1fr; }
+  .panel { padding: 1.5rem 1rem; }
+}
+ 
+@media print {
+  .masthead, .tab-nav, .panel:not(#invoice-panel),
+  .calc-btn, .print-btn, .add-line-btn, .remove-btn,
+  .site-footer, label, input, select, .field-group,
+  .field-row, .divider, .panel-desc, .panel-title { display: none !important; }
+  #invoice-panel { display: block !important; padding: 0; }
+  .invoice-preview { display: block !important; border: none; padding: 0; }
+  body { background: white; }
+}
+</style>
+</head>
+<body>
+ 
+<div class="masthead">
+  <div class="masthead-eyebrow">Free Tools for People Who Work for Themselves</div>
+  <h1>Bill Your Best</h1>
+  <div class="masthead-sub">Stop undercharging. Start getting paid what you're worth.</div>
+</div>
+ 
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showPanel('rate')">① Rate Calculator</button>
+  <button class="tab-btn" onclick="showPanel('tax')">② Tax Set-Aside</button>
+  <button class="tab-btn" onclick="showPanel('invoice')">③ Invoice Generator</button>
+</div>
+ 
+<!-- RATE CALCULATOR -->
+<div class="panel active" id="rate-panel">
+  <div class="panel-title">What Should I Charge?</div>
+  <div class="panel-desc">Enter your income goal and expenses. We'll calculate the minimum hourly rate you need to charge to actually hit your number.</div>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Desired Annual Income</label>
+      <div class="prefix-input"><span>$</span><input type="number" id="r-income" placeholder="60000" min="0"></div>
+    </div>
+    <div class="field-group">
+      <label>Annual Business Expenses</label>
+      <div class="prefix-input"><span>$</span><input type="number" id="r-expenses" placeholder="5000" min="0"></div>
+    </div>
+  </div>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Hours Worked Per Week</label>
+      <input type="number" id="r-hours" placeholder="40" min="1" max="80">
+    </div>
+    <div class="field-group">
+      <label>Billable % of Work Time</label>
+      <select id="r-billable">
+        <option value="0.7">70% — Most freelancers</option>
+        <option value="0.6">60% — With heavy admin</option>
+        <option value="0.8">80% — Highly efficient</option>
+        <option value="0.5">50% — Just starting out</option>
+      </select>
+    </div>
+  </div>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Weeks Off Per Year</label>
+      <input type="number" id="r-weeks-off" placeholder="4" min="0" max="20">
+    </div>
+    <div class="field-group">
+      <label>Profit Buffer</label>
+      <select id="r-buffer">
+        <option value="0.15">15% — Standard</option>
+        <option value="0.1">10% — Lean</option>
+        <option value="0.2">20% — Conservative</option>
+        <option value="0.25">25% — Growth mode</option>
+      </select>
+    </div>
+  </div>
+ 
+  <button class="calc-btn" onclick="calcRate()">Calculate My Rate</button>
+ 
+  <div class="result-box" id="rate-result">
+    <div class="result-main" id="rate-output">$0/hr</div>
+    <div class="result-label">Minimum Hourly Rate</div>
+    <div class="result-breakdown">
+      <div class="result-row"><span>Annual income goal</span><span id="r-show-income">—</span></div>
+      <div class="result-row"><span>Annual expenses</span><span id="r-show-expenses">—</span></div>
+      <div class="result-row"><span>Profit buffer</span><span id="r-show-buffer">—</span></div>
+      <div class="result-row"><span>Total needed</span><span id="r-show-total">—</span></div>
+      <div class="result-row"><span>Billable hours/year</span><span id="r-show-hours">—</span></div>
+      <div class="result-row"><span>Daily rate (8hr day)</span><span id="r-show-daily">—</span></div>
+      <div class="result-row"><span>Project rate (40hr)</span><span id="r-show-project">—</span></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- TAX SET-ASIDE -->
+<div class="panel" id="tax-panel">
+  <div class="panel-title">How Much to Save for Tax?</div>
+  <div class="panel-desc">Self-employed people pay their own taxes. This tells you exactly how much to set aside from every payment so you're never caught short at tax time.</div>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Expected Annual Income</label>
+      <div class="prefix-input"><span>$</span><input type="number" id="t-income" placeholder="50000" min="0"></div>
+    </div>
+    <div class="field-group">
+      <label>Country / Region</label>
+      <select id="t-country">
+        <option value="ca">Canada</option>
+        <option value="us">United States</option>
+        <option value="uk">United Kingdom</option>
+        <option value="au">Australia</option>
+        <option value="other">Other / Estimate</option>
+      </select>
+    </div>
+  </div>
+ 
+  <div class="field-group">
+    <label>Annual Business Expenses (deductible)</label>
+    <div class="prefix-input"><span>$</span><input type="number" id="t-expenses" placeholder="3000" min="0"></div>
+    <div class="hint">Expenses reduce your taxable income</div>
+  </div>
+ 
+  <div class="field-group">
+    <label>Do you have other employment income?</label>
+    <select id="t-other">
+      <option value="no">No — self-employment only</option>
+      <option value="yes">Yes — I also have a salaried job</option>
+    </select>
+  </div>
+ 
+  <button class="calc-btn" onclick="calcTax()">Calculate My Set-Aside</button>
+ 
+  <div class="result-box" id="tax-result">
+    <div class="result-main" id="tax-output">0%</div>
+    <div class="result-label">Recommended Set-Aside Rate</div>
+    <div class="result-breakdown">
+      <div class="result-row"><span>Gross income</span><span id="t-show-gross">—</span></div>
+      <div class="result-row"><span>Deductible expenses</span><span id="t-show-expenses">—</span></div>
+      <div class="result-row"><span>Net taxable income</span><span id="t-show-net">—</span></div>
+      <div class="result-row"><span>Estimated tax owed</span><span id="t-show-tax">—</span></div>
+      <div class="result-row"><span>Set aside per $1,000 earned</span><span id="t-show-per1k">—</span></div>
+      <div class="result-row"><span>Set aside per $100 earned</span><span id="t-show-per100">—</span></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- INVOICE GENERATOR -->
+<div class="panel" id="invoice-panel">
+  <div class="panel-title">Invoice Generator</div>
+  <div class="panel-desc">Fill in the details, add your line items, then print or save as PDF. Professional invoices in under a minute.</div>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Your Name / Business Name</label>
+      <input type="text" id="i-from" placeholder="Jane Smith Creative">
+    </div>
+    <div class="field-group">
+      <label>Client Name / Business</label>
+      <input type="text" id="i-to" placeholder="Acme Corp">
+    </div>
+  </div>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Invoice Number</label>
+      <input type="text" id="i-number" placeholder="INV-001">
+    </div>
+    <div class="field-group">
+      <label>Invoice Date</label>
+      <input type="date" id="i-date">
+    </div>
+  </div>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Due Date</label>
+      <input type="date" id="i-due">
+    </div>
+    <div class="field-group">
+      <label>Currency</label>
+      <select id="i-currency">
+        <option value="CAD">CAD — Canadian Dollar</option>
+        <option value="USD">USD — US Dollar</option>
+        <option value="GBP">GBP — British Pound</option>
+        <option value="AUD">AUD — Australian Dollar</option>
+        <option value="EUR">EUR — Euro</option>
+      </select>
+    </div>
+  </div>
+ 
+  <div class="divider"></div>
+ 
+  <label style="margin-bottom:10px; display:block;">Line Items</label>
+ 
+  <div style="display:grid; grid-template-columns:1fr 80px 80px 36px; gap:8px; margin-bottom:6px;">
+    <span style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.1em;">Description</span>
+    <span style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.1em;">Qty</span>
+    <span style="font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.1em;">Rate</span>
+    <span></span>
+  </div>
+ 
+  <div id="line-items"></div>
+ 
+  <button class="add-line-btn" onclick="addLine()">+ Add Line Item</button>
+ 
+  <div class="field-row">
+    <div class="field-group">
+      <label>Tax Rate (%)</label>
+      <input type="number" id="i-tax" placeholder="0" min="0" max="50" step="0.5">
+      <div class="hint">Leave blank for no tax</div>
+    </div>
+    <div class="field-group">
+      <label>Notes / Payment Terms</label>
+      <input type="text" id="i-notes" placeholder="Payment due within 30 days">
+    </div>
+  </div>
+ 
+  <button class="calc-btn" onclick="generateInvoice()">Generate Invoice</button>
+ 
+  <div class="invoice-preview" id="invoice-preview">
+    <div class="invoice-header">
+      <div class="invoice-title">INVOICE</div>
+      <div class="invoice-number">
+        <div id="inv-number-display"></div>
+        <div id="inv-date-display"></div>
+        <div id="inv-due-display"></div>
+      </div>
+    </div>
+ 
+    <div class="invoice-parties">
+      <div>
+        <div class="invoice-party-label">From</div>
+        <div class="invoice-party-name" id="inv-from"></div>
+      </div>
+      <div>
+        <div class="invoice-party-label">Bill To</div>
+        <div class="invoice-party-name" id="inv-to"></div>
+      </div>
+    </div>
+ 
+    <table class="invoice-items">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th style="text-align:right">Amount</th>
+        </tr>
+      </thead>
+      <tbody id="inv-items-body"></tbody>
+    </table>
+ 
+    <div class="invoice-totals">
+      <div class="invoice-total-row">
+        <span style="color:var(--muted)">Subtotal</span>
+        <span id="inv-subtotal"></span>
+      </div>
+      <div class="invoice-total-row" id="inv-tax-row" style="display:none">
+        <span style="color:var(--muted)" id="inv-tax-label">Tax</span>
+        <span id="inv-tax-amount"></span>
+      </div>
+      <div class="invoice-total-row grand">
+        <span>Total Due</span>
+        <span id="inv-total"></span>
+      </div>
+    </div>
+ 
+    <div class="invoice-note" id="inv-note"></div>
+ 
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+</div>
+ 
+<div class="site-footer">
+  A free tool by <a href="https://deardickinc.com" target="_blank">Dear D.I.C.K. Inc.</a> &nbsp;·&nbsp;
+  <a href="https://buymeacoffee.com/CanTools" target="_blank">Buy me a coffee</a> &nbsp;·&nbsp;
+  <a href="https://cantools.carrd.co" target="_blank">CanTools</a>
+</div>
+ 
+<script>
+// Tab navigation
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(name + '-panel').classList.add('active');
+  event.target.classList.add('active');
+}
+ 
+// Format currency
+function fmt(n, currency) {
+  return (currency || 'CAD') + ' ' + n.toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+ 
+function fmtSimple(n) {
+  return '$' + n.toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+ 
+// RATE CALCULATOR
+function calcRate() {
+  const income = parseFloat(document.getElementById('r-income').value) || 60000;
+  const expenses = parseFloat(document.getElementById('r-expenses').value) || 0;
+  const hoursPerWeek = parseFloat(document.getElementById('r-hours').value) || 40;
+  const billable = parseFloat(document.getElementById('r-billable').value);
+  const weeksOff = parseFloat(document.getElementById('r-weeks-off').value) || 4;
+  const buffer = parseFloat(document.getElementById('r-buffer').value);
+ 
+  const weeksWorked = 52 - weeksOff;
+  const billableHoursPerYear = hoursPerWeek * weeksWorked * billable;
+  const bufferAmount = (income + expenses) * buffer;
+  const totalNeeded = income + expenses + bufferAmount;
+  const hourlyRate = totalNeeded / billableHoursPerYear;
+  const dailyRate = hourlyRate * 8;
+  const projectRate = hourlyRate * 40;
+ 
+  document.getElementById('rate-output').textContent = fmtSimple(hourlyRate) + '/hr';
+  document.getElementById('r-show-income').textContent = fmtSimple(income);
+  document.getElementById('r-show-expenses').textContent = fmtSimple(expenses);
+  document.getElementById('r-show-buffer').textContent = fmtSimple(bufferAmount);
+  document.getElementById('r-show-total').textContent = fmtSimple(totalNeeded);
+  document.getElementById('r-show-hours').textContent = Math.round(billableHoursPerYear) + ' hrs';
+  document.getElementById('r-show-daily').textContent = fmtSimple(dailyRate);
+  document.getElementById('r-show-project').textContent = fmtSimple(projectRate);
+ 
+  document.getElementById('rate-result').classList.add('visible');
+}
+ 
+// TAX CALCULATOR
+function calcTax() {
+  const income = parseFloat(document.getElementById('t-income').value) || 50000;
+  const expenses = parseFloat(document.getElementById('t-expenses').value) || 0;
+  const country = document.getElementById('t-country').value;
+  const hasOtherIncome = document.getElementById('t-other').value === 'yes';
+ 
+  const netIncome = Math.max(0, income - expenses);
+ 
+  let taxRate = 0;
+ 
+  if (country === 'ca') {
+    // Canadian federal + avg provincial + CPP self-employed
+    if (netIncome < 15000) taxRate = 0.05;
+    else if (netIncome < 30000) taxRate = 0.18;
+    else if (netIncome < 55000) taxRate = 0.28;
+    else if (netIncome < 100000) taxRate = 0.35;
+    else taxRate = 0.43;
+    if (hasOtherIncome) taxRate = Math.min(taxRate + 0.05, 0.50);
+  } else if (country === 'us') {
+    if (netIncome < 12000) taxRate = 0.15;
+    else if (netIncome < 40000) taxRate = 0.25;
+    else if (netIncome < 85000) taxRate = 0.32;
+    else taxRate = 0.38;
+    if (hasOtherIncome) taxRate = Math.min(taxRate + 0.05, 0.45);
+  } else if (country === 'uk') {
+    if (netIncome < 12570) taxRate = 0.09;
+    else if (netIncome < 50000) taxRate = 0.29;
+    else taxRate = 0.42;
+  } else if (country === 'au') {
+    if (netIncome < 18200) taxRate = 0.02;
+    else if (netIncome < 45000) taxRate = 0.21;
+    else if (netIncome < 120000) taxRate = 0.34;
+    else taxRate = 0.45;
+  } else {
+    taxRate = netIncome < 30000 ? 0.20 : netIncome < 80000 ? 0.28 : 0.35;
+  }
+ 
+  const taxOwed = netIncome * taxRate;
+  const setAsideRate = taxOwed / income;
+  const per1k = setAsideRate * 1000;
+  const per100 = setAsideRate * 100;
+ 
+  document.getElementById('tax-output').textContent = Math.round(setAsideRate * 100) + '%';
+  document.getElementById('t-show-gross').textContent = fmtSimple(income);
+  document.getElementById('t-show-expenses').textContent = fmtSimple(expenses);
+  document.getElementById('t-show-net').textContent = fmtSimple(netIncome);
+  document.getElementById('t-show-tax').textContent = fmtSimple(taxOwed);
+  document.getElementById('t-show-per1k').textContent = fmtSimple(per1k);
+  document.getElementById('t-show-per100').textContent = fmtSimple(per100);
+ 
+  document.getElementById('tax-result').classList.add('visible');
+}
+ 
+// INVOICE
+let lineCount = 0;
+ 
+function addLine(desc, qty, rate) {
+  lineCount++;
+  const id = lineCount;
+  const div = document.createElement('div');
+  div.className = 'line-item-row';
+  div.id = 'line-' + id;
+  div.innerHTML = `
+    <input type="text" placeholder="Description of work" id="ld-${id}" value="${desc||''}">
+    <input type="number" placeholder="1" min="0" step="0.5" id="lq-${id}" value="${qty||1}">
+    <input type="number" placeholder="0.00" min="0" step="0.01" id="lr-${id}" value="${rate||''}">
+    <button class="remove-btn" onclick="removeLine(${id})">×</button>
+  `;
+  document.getElementById('line-items').appendChild(div);
+}
+ 
+function removeLine(id) {
+  const el = document.getElementById('line-' + id);
+  if (el) el.remove();
+}
+ 
+function generateInvoice() {
+  const from = document.getElementById('i-from').value || 'Your Name';
+  const to = document.getElementById('i-to').value || 'Client Name';
+  const number = document.getElementById('i-number').value || 'INV-001';
+  const date = document.getElementById('i-date').value;
+  const due = document.getElementById('i-due').value;
+  const currency = document.getElementById('i-currency').value;
+  const taxRate = parseFloat(document.getElementById('i-tax').value) || 0;
+  const notes = document.getElementById('i-notes').value;
+ 
+  document.getElementById('inv-from').textContent = from;
+  document.getElementById('inv-to').textContent = to;
+  document.getElementById('inv-number-display').textContent = number;
+  document.getElementById('inv-date-display').textContent = date ? 'Date: ' + date : '';
+  document.getElementById('inv-due-display').textContent = due ? 'Due: ' + due : '';
+ 
+  const tbody = document.getElementById('inv-items-body');
+  tbody.innerHTML = '';
+  let subtotal = 0;
+ 
+  const rows = document.querySelectorAll('.line-item-row');
+  rows.forEach(row => {
+    const id = row.id.replace('line-', '');
+    const desc = document.getElementById('ld-' + id)?.value || '';
+    const qty = parseFloat(document.getElementById('lq-' + id)?.value) || 0;
+    const rate = parseFloat(document.getElementById('lr-' + id)?.value) || 0;
+    const amount = qty * rate;
+    subtotal += amount;
+ 
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${desc}</td>
+      <td>${qty}</td>
+      <td>${fmt(rate, currency)}</td>
+      <td style="text-align:right">${fmt(amount, currency)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+ 
+  const taxAmount = subtotal * (taxRate / 100);
+  const total = subtotal + taxAmount;
+ 
+  document.getElementById('inv-subtotal').textContent = fmt(subtotal, currency);
+ 
+  if (taxRate > 0) {
+    document.getElementById('inv-tax-row').style.display = 'flex';
+    document.getElementById('inv-tax-label').textContent = 'Tax (' + taxRate + '%)';
+    document.getElementById('inv-tax-amount').textContent = fmt(taxAmount, currency);
+  } else {
+    document.getElementById('inv-tax-row').style.display = 'none';
+  }
+ 
+  document.getElementById('inv-total').textContent = fmt(total, currency);
+  document.getElementById('inv-note').textContent = notes;
+ 
+  document.getElementById('invoice-preview').classList.add('visible');
+  document.getElementById('invoice-preview').scrollIntoView({behavior:'smooth'});
+}
+ 
+// Initialize
+window.onload = function() {
+  addLine('', 1, '');
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('i-date').value = today;
+  const due = new Date();
+  due.setDate(due.getDate() + 30);
+  document.getElementById('i-due').value = due.toISOString().split('T')[0];
+  document.getElementById('i-number').value = 'INV-' + String(Math.floor(Math.random()*900)+100);
+};
+</script>
+</body>
+</html>
+ 
+
+
+
+
+
